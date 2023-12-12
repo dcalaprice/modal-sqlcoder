@@ -171,16 +171,7 @@ class Model:
                 yield response.token.text
 
 
-# ## Run the model
-# We define a [`local_entrypoint`](/docs/guide/apps#entrypoints-for-ephemeral-apps) to invoke
-# our remote function. You can run this script locally with `modal run text_generation_inference.py`.
-# This entrypoint generates a response using an example query and default metadata.
-@stub.local_entrypoint()
-def main():
-    print("main() started")
-    result =  Model().generate.remote("Do we get more revenue from customers in New York compared to customers in San Francisco? Give me the total revenue for each city, and the difference between the two.", metadata=METADATA_DEFAULT)
-    print(f"main() result: {result}")
-    
+# Example prompt template for SQLCoder2    
 PROMPT_TEMPLATE = """### Task
 Generate a SQL query to answer the following question:
 `{user_question}`
@@ -198,6 +189,7 @@ Given the database schema, here is the SQL query that answers `{user_question}`:
 ```sql
 """
 
+# Example metadata for SQLCoder2    
 METADATA_DEFAULT = """CREATE TABLE products (
   product_id INTEGER PRIMARY KEY, -- Unique ID for each product
   name VARCHAR(50), -- Name of the product
@@ -238,6 +230,7 @@ CREATE TABLE product_suppliers (
 -- product_suppliers.product_id can be joined with products.product_id
 """
 
+# Generate a prompt for SQLCoder2 based on prompt template and metadata
 def generate_prompt(question, prompt_template=PROMPT_TEMPLATE, metadata=METADATA_DEFAULT):
     print(f"generate_prompt() Question: {question}") 
     prompt = prompt_template.format(
@@ -245,6 +238,18 @@ def generate_prompt(question, prompt_template=PROMPT_TEMPLATE, metadata=METADATA
     )
     print(f"generate_prompt() Prompt: {prompt}")
     return prompt
+
+
+# ## Run the model
+# We define a [`local_entrypoint`](/docs/guide/apps#entrypoints-for-ephemeral-apps) to invoke
+# our remote function. You can run this script locally with `modal run text_generation_inference.py`.
+# This entrypoint generates a response using an example query and default metadata.
+@stub.local_entrypoint()
+def main():
+    print("main() started")
+    result =  Model().generate.remote("Do we get more revenue from customers in New York compared to customers in San Francisco? Give me the total revenue for each city, and the difference between the two.", metadata=METADATA_DEFAULT)
+    print(f"main() result: {result}")
+
 
 # ## Serve the model
 # Deploy this model with `modal deploy sql_generation_inference.py`
@@ -258,5 +263,5 @@ def generate_prompt(question, prompt_template=PROMPT_TEMPLATE, metadata=METADATA
 # $ python
 # >>> import modal
 # >>> f = modal.Function.lookup("example-tgi-sqlcoder2", "Model.generate")
-# >>> result = f.remote("How many salespeople are there?", metadata=metadata)
+# >>> result = f.remote("How many salespeople are there?", metadata="(Replace with your own metadata)")
 # ```
